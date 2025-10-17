@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { fetchGithubUser } from './github';
+import UserCard from './UserCard';
 
 const UserSearch = () => {
     const [username, setUsername] = useState('');
@@ -7,15 +9,7 @@ const UserSearch = () => {
 
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ['users', submittedUsername],
-        queryFn: async () => {
-            const res = await fetch(`${import.meta.env.VITE_GITHUB_API}/users/${submittedUsername}`);
-
-            if (!res.ok) throw new Error('User not Found');
-
-            const data = await res.json();
-            console.log(data);
-            return data;
-        },
+        queryFn: () => fetchGithubUser(submittedUsername),
 
         enabled: !!submittedUsername,
     });
@@ -39,24 +33,11 @@ const UserSearch = () => {
             </form>
 
             {isLoading && <p className='status'>Loading...</p>}
+            {isError && <p className='status'>Error...</p>}
             {error && <p className='status error'>{error.message}</p>}
 
             {
-                data && data && (
-                    <div className='user-card'>
-                        <img src={data.avatar_url} alt={data.name} className='avatar' />
-                        <h2>{data.name || data.login}</h2>
-                        <p className='bio'>{data.bio}</p>
-                        <a
-                            href={data.html_url}
-                            target='_blank'
-                            rel='noopener noreferrer'
-                            className='profile-btn'
-                        >
-                            View GitHub Profile
-                        </a>
-                    </div>
-                )
+                data && <UserCard user={data} />
             }
         </>
     );
