@@ -1,9 +1,10 @@
-
+import UserSearch from './UserSearch'
 
 const App = () => {
   return (
-    <div>
-      My App
+    <div className="container">
+      <h1>Github Finder</h1>
+      <UserSearch></UserSearch>
     </div>
   );
 };
